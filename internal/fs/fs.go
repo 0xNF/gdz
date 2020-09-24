@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -35,12 +36,18 @@ var os2PathDict = map[string]map[string]string{
 	"android": {"3.8": androidPath38, "4.0": androidPath40},
 }
 
+func split(path string) string {
+	var fullPath string = os.ExpandEnv(path)
+	baseDir := filepath.Base(fullPath)
+	return baseDir
+}
+
 func Get(c *Conf) []string {
 	paths := []string{}
 	for _, v := range c.Versions {
 		rt := runtime.GOOS
 		path := os2PathDict[rt][v]
-		p, err := getStuff(path, fmt.Sprintf("%s_%s", rt, v), c.Verbose)
+		p, err := getStuff(path, path, fmt.Sprintf("%s_%s", rt, v), c.Verbose)
 		if err != nil {
 			panic(err)
 		}
@@ -49,10 +56,10 @@ func Get(c *Conf) []string {
 	return paths
 }
 
-func getStuff(fpath string, which string, verbose bool) (string, error) {
+func getStuff(fpath string, bpath string, which string, verbose bool) (string, error) {
 	var fullPath string = os.ExpandEnv(fpath)
 	if exists(fullPath) {
-		zpath := makeZip(fullPath, which, verbose)
+		zpath := makeZip(fullPath, bpath, which, verbose)
 		fmt.Printf("Finished creating Gravio Diagnostics Zip File. This file can be found at %s\n", zpath)
 		return zpath, nil
 	}
@@ -68,7 +75,7 @@ func exists(path string) bool {
 }
 
 // Zips "./input" into "./output.zip"
-func makeZip(fpath string, which string, verbose bool) string {
+func makeZip(fpath string, bpath string, which string, verbose bool) string {
 	t := time.Now() //It will return time.Time object with current timestamp
 	tUnixMilli := int64(time.Nanosecond) * t.UnixNano() / int64(time.Millisecond)
 	zipName := fmt.Sprintf("GravioDiagnostics_%s_%d.zip", which, tUnixMilli)
@@ -83,7 +90,7 @@ func makeZip(fpath string, which string, verbose bool) string {
 
 	walker := func(path string, info os.FileInfo, err error) error {
 		if verbose {
-			fmt.Printf("Crawling: %#v\n", path)
+			// fmt.Printf("Crawling: %#v\n", path)
 		}
 		if err != nil {
 			return err
@@ -101,7 +108,11 @@ func makeZip(fpath string, which string, verbose bool) string {
 		// This snippet happens to work because I don't use
 		// absolute paths, but ensure your real-world code
 		// transforms path into a zip-root relative path.
-		f, err := w.Create(path)
+		mpath := strings.Replace(path, os.ExpandEnv(bpath), split(bpath), 1)
+		fmt.Println("fpath: " + path)
+		fmt.Println("bpath: " + os.ExpandEnv(bpath))
+		fmt.Println("rpl: " + mpath)
+		f, err := w.Create(mpath)
 		if err != nil {
 			return err
 		}

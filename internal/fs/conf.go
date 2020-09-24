@@ -8,7 +8,7 @@ type Conf struct {
 
 func NewConfig() Conf {
 	conf := Conf{
-		Verbose:  false,
+		Verbose:  true,
 		Versions: []string{"3.8"},
 	}
 	return conf
