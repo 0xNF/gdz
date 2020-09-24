@@ -3,6 +3,8 @@
 # GDZ - Gravio Diagnostics Zipper
 Creates zip files used for dianosing Gravio Hubkit problems
 
+![gdz demonstration](demo.gif)
+
 # Usgae
 GUI:
 Just double click the .exe file  
