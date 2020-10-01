@@ -107,20 +107,12 @@ func Get(c *fs.Conf) []string {
 
 func grabSystemLogs() map[string][]string {
 	var d = make(map[string][]string)
-	rt := runtime.GOOS
-
-	if rt == "windows" {
-		here, _ := events.GetEventLogs()
-		d["EventLogs"] = here
-	} else if rt == "linux" {
-		here, _ := events.GetLinuxLogs()
-		d["LinuxLogs"] = here
-	} else if rt == "android" {
-
-	} else if rt == "darwin" {
-
+	here, _, err := events.GetEventLogs()
+	if err != nil {
+		panic(err)
 	}
-	fmt.Printf("%+v", d)
+	fmt.Printf("%+v", here)
+	d["EventLogs"] = here
 	return d
 }
 
