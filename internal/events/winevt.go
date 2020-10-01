@@ -17,7 +17,7 @@ func GetEventLogs() ([]string, []string) {
 	if runtime.GOOS == "windows" {
 		var getThese = []string{
 			"Application.evtx",
-			"Systen.evtx",
+			"System.evtx",
 		}
 		wpath := "C:\\Windows\\System32\\winevt\\Logs\\%s"
 		for _, val := range getThese {
